@@ -2,6 +2,7 @@ use enigo::*;
 use rand::prelude::*;
 use std::{thread::sleep, time::Duration};
 use structopt::StructOpt;
+use user_idle::UserIdle;
 
 fn main() -> Result<(), String> {
     let mut enigo = Enigo::new(&Settings::default()).map_err(|error| error.to_string())?;
@@ -37,21 +38,32 @@ fn move_mouse(enigo: &mut Enigo, opt: &Opt, rng: &mut ThreadRng) -> Result<(), &
         return Err("min-delay is greater than max-delay");
     }
 
-    enigo
-        .key(Key::Unicode('w'), Direction::Press)
-        .map_err(|_| "failed to send key")?;
-
-    sleep(Duration::from_millis(500));
-
-    enigo
-        .key(Key::Unicode('w'), Direction::Release)
-        .map_err(|_| "failed to release key")?;
-
     let sleep_time = rng.gen_range(opt.min_delay..=opt.max_delay);
+    let idle_time = UserIdle::get_time()
+        .map_err(|_| "failed to get user idle time")?
+        .as_seconds();
+
+    let sleep_time = sleep_time.saturating_sub(idle_time);
 
     println!("Will move again in {} seconds.", sleep_time);
 
     sleep(Duration::from_secs(sleep_time));
+
+    let idle_time = UserIdle::get_time()
+        .map_err(|_| "failed to get user idle time")?
+        .as_seconds();
+
+    if idle_time > opt.max_delay {
+        enigo
+            .key(Key::Unicode('w'), Direction::Press)
+            .map_err(|_| "failed to send key")?;
+
+        sleep(Duration::from_millis(500));
+
+        enigo
+            .key(Key::Unicode('w'), Direction::Release)
+            .map_err(|_| "failed to release key")?;
+    }
 
     Ok(())
 }
