@@ -1,10 +1,10 @@
+use clap::Parser;
 use enigo::*;
 use std::{thread::sleep, time::Duration};
-use structopt::StructOpt;
 use user_idle::UserIdle;
 
 fn main() -> Result<(), String> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     let mut enigo = Enigo::new(&Settings::default()).map_err(|error| error.to_string())?;
 
@@ -14,14 +14,14 @@ fn main() -> Result<(), String> {
     }
 }
 
-#[derive(StructOpt, Debug)]
-#[structopt(
+#[derive(Parser, Debug)]
+#[command(
     name = "afk",
     about = "A command-line program to make your mouse wander. ;)"
 )]
 struct Opt {
     /// Max delay time in seconds
-    #[structopt(long = "delay", default_value = "28")]
+    #[arg(long = "delay", default_value_t = 28)]
     delay: u64,
 }
 
