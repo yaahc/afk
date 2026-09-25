@@ -12,6 +12,5 @@ version = "0.1.11"
 
 [dependencies]
 enigo = "0.6.1"
-rand = "0.8.4"
 structopt = "0.3.25"
 user-idle = "0.6.0"
