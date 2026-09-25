@@ -41,6 +41,12 @@ fn move_mouse(enigo: &mut Enigo, opt: &Opt, rng: &mut ThreadRng) -> Result<(), &
         .key(Key::Unicode('w'), Direction::Press)
         .map_err(|_| "failed to send key")?;
 
+    sleep(Duration::from_millis(500));
+
+    enigo
+        .key(Key::Unicode('w'), Direction::Release)
+        .map_err(|_| "failed to release key")?;
+
     let sleep_time = rng.gen_range(opt.min_delay..=opt.max_delay);
 
     println!("Will move again in {} seconds.", sleep_time);
